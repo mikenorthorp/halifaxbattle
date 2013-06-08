@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="shortcut icon" href="/assets/images/army.png" type="image/png">
+        <title>
+            Halifax Battle
+        </title>
+        <link rel="stylesheet" href="/assets/css/main.css" type="text/css">
+        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+        <script type="text/javascript" src="/assets/scripts/locate.js"></script>
+    </head>
+    <body>
+        <h1>
+            Citadel Hill Battle!
+        </h1>
+        <form id="profile">
+            <div id="wrapper">
+                <span><label for="name">Character Name:</label> <input type="text" name="name" id="name" value=""></span><br>
+                <input type="radio" name="faction" id="eng" value="English Player"><label for="eng">English Player</label><br>
+                <input type="radio" name="faction" id="fre" value="French Player"><label for="fre">French Player</label><br>
+                <input type="button" name="factionSubmit" id="factionSubmit" value="Submit" onclick="Submit();">
+            </div>
+        </form>
+        <div id="InfoArea">
+            <h3>
+                Battle Information
+            </h3>
+            <p id="NAME"></p>
+            <p id="FACTION"></p>
+
+            <span id="coordinates"></span><br>
+            <span id="updateCount"></span><br>
+            <span id="soldierCount"></span><br>
+            <span id="infoBox"></span><br>
+            <span id="errorMessage"></span>
+        </div>
+        <div id="map_canvas"></div>
+    </body>
+</html>
