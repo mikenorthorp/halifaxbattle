@@ -1,8 +1,7 @@
 // Global variables
-var browserSupportFlag = true;
+var geoLocationIsEnabled = true;
 var map;
 var initialLocation = new google.maps.LatLng(45.432096, 28.061957);
-var siberia = new google.maps.LatLng(60, 105);
 var newyork = new google.maps.LatLng(40.69847032728747, -73.9514422416687);
 
 // Variables for long and latitude
@@ -93,7 +92,7 @@ function setUpMap() {
 
 function getCurrentPosition() {
   if (navigator.geolocation) {
-    browserSupportFlag = true;
+    geoLocationIsEnabled = true;
     navigator.geolocation.getCurrentPosition(function(position) {
       document.getElementById("coordinates").innerHTML = "Position: " + position.coords.latitude.toFixed(6) + "," + position.coords.longitude.toFixed(6);
       initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -103,18 +102,18 @@ function getCurrentPosition() {
       latCord = position.coords.latitude.toFixed(6);
       latLngCord = initialLocation;
     }, function() {
-      handleNoGeolocation(browserSupportFlag);
+      geolocationNotEnabled(geoLocationIsEnabled);
     }, {
       enableHighAccuracy: true,
       maximumAge: 0,
       timeout: 30000
     });
   } else {
-    browserSupportFlag = false;
-    handleNoGeolocation(browserSupportFlag);
+    geoLocationIsEnabled = false;
+    geolocationNotEnabled(geoLocationIsEnabled);
   }
 
-  if (browserSupportFlag) {
+  if (geoLocationIsEnabled) {
     watchId = navigator.geolocation.watchPosition(function(position) {
       document.getElementById("coordinates").innerHTML = "Position: " + position.coords.latitude.toFixed(6) + "," + position.coords.longitude.toFixed(6);
       //Set long and lat to variable
@@ -127,7 +126,7 @@ function getCurrentPosition() {
         moveMarker(initialLocation);
       }
     }, function() {
-      handleNoGeolocation(browserSupportFlag);
+      geolocationNotEnabled(geoLocationIsEnabled);
     }, {
       enableHighAccuracy: true,
       maximumAge: 0,
@@ -136,17 +135,13 @@ function getCurrentPosition() {
   }
 }
 
-function errorCallback(error) {
-  document.getElementById("errorMessage").innerHTML = error.message;
-}
-
-function handleNoGeolocation(errorFlag) {
+function geolocationNotEnabled(errorFlag) {
   if (errorFlag == true) {
     document.getElementById("errorMessage").innerHTML = "Geolocation service failed.";
     initialLocation = newyork;
   } else {
-    document.getElementById("errorMessage").innerHTML = "Your browser doesn't support geolocation. We've placed you in Siberia.";
-    initialLocation = siberia;
+    document.getElementById("errorMessage").innerHTML = "Your browser doesn't support geolocation. We've placed you in New York.";
+    initialLocation = newyork;
   }
   map.setCenter(initialLocation);
 }
@@ -170,12 +165,14 @@ function moveMarker(location) {
 
   // Increase update count for testing purposes
   update_count++;
+
+  // Update other info everytime the marker is moved
   document.getElementById("updateCount").innerHTML = "Update Count: " + update_count;
   document.getElementById("soldierCount").innerHTML = "Soldier Count " + soldierCount;
   document.getElementById("errorMessage").innerHTML = "";
 }
 
-// Runs every 3 seconds to update soldier count if loaded
+// Runs every 3 seconds to update soldier count if loaded and update count based on area
 window.setInterval(function() {
   if (setUp) {
     var bounds;
@@ -211,6 +208,7 @@ window.setInterval(function() {
 }, 3000);
 
 
+/* This function submits username and player team */
 function Submit() {
   var name = document.getElementById('name').value;
 
