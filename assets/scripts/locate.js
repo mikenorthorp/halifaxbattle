@@ -226,6 +226,7 @@ function Submit() {
     }
   }
   document.getElementById('FACTION').innerHTML = "Faction: " + factions_list;
+  document.getElementById('profile').innerHTML = "";
 
   // Call google map setup
   setUpMap();
