@@ -49,9 +49,14 @@ function setUpMap() {
   setUp = true;
   // Set options for google map
   var myOptions = {
-    zoom: 15,
+    zoom: 18,
+    disableDefaultUI: true,
     center: initialLocation,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+    draggable: false,
+    zoomControl: false,
+    scrollwheel: false,
+    disableDoubleClickZoom: true
   };
   map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
