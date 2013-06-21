@@ -9,6 +9,10 @@ var longCord = 0;
 var latCord = 0;
 var latLngCord = null;
 
+// Starting soldier count between 4500 and 5500
+var englishSoldiers = Math.floor((Math.random() * 1000) + 4500);
+var frenchSoldiers = Math.floor((Math.random() * 1000) + 4500);
+
 // Page setup
 var setUp = false;
 
@@ -37,15 +41,17 @@ var battleZones = {};
 var battleZoneCircle;
 
 // This function creates a new battle or safe zone at the cooridnates passed in
+
 function createZone(nameP, colorP, typeP, lat, lng, radiusP) {
   var newZone = {
     name: nameP,
     color: colorP,
     center: new google.maps.LatLng(lat, lng),
-    radius: radiusP
+    radius: radiusP,
+    circle: null
   }
 
-  if(typeP == "battle"){
+  if (typeP == "battle") {
     battleZones[newZone.name] = newZone;
   } else {
     safeZones[newZone.name] = newZone;
@@ -53,6 +59,7 @@ function createZone(nameP, colorP, typeP, lat, lng, radiusP) {
 }
 
 // Set up minimap to start tracking location
+
 function setUpMap() {
   // Page set up
   setUp = true;
@@ -75,6 +82,9 @@ function setUpMap() {
   createZone("Battle Zone 1", "#FF0000", "battle", 44.64638, -63.58151, 100);
   createZone("Battle Zone 2", "#FF0000", "battle", 44.64849, -63.57905, 100);
 
+  // Test zone for battle
+  createZone("Battle Zone test", "#FF0000", "battle", 44.637581, -63.587166, 100);
+
   // Add safe zones into google maps
   for (var zone in safeZones) {
     var zoneOptions = {
@@ -88,6 +98,7 @@ function setUpMap() {
       radius: safeZones[zone].radius
     };
     safeZoneCircle = new google.maps.Circle(zoneOptions);
+    safeZones[zone].circle = safeZoneCircle;
   }
 
   // Add battle zones into google maps
@@ -103,6 +114,7 @@ function setUpMap() {
       radius: battleZones[zone].radius
     };
     battleZoneCircle = new google.maps.Circle(zoneOptions);
+    battleZones[zone].circle = battleZoneCircle;
   }
 
 
@@ -196,34 +208,60 @@ function moveMarker(location) {
 // Runs every 3 seconds to update soldier count if loaded and update count based on area
 window.setInterval(function() {
   if (setUp) {
-    var bounds;
-
     // Get bounds
-    var bounds = safeZoneCircle.getBounds();
-    //Check if in safe zone, increase soldier count to max of 1500
-    if (bounds.contains(latLngCord)) {
-      //alert("in safezone");
-      if (soldierCount < 1500) {
-        soldierCount += 100;
-        // Show user info about current location
-        $('#infoBox').html("You are currently in a safe zone and gaining soldiers");
-      } else {
-        // Show user info about current location
-        $('#infoBox').html("You are currently in a safe zone and have gained the maximum amount of soldiers");
+    var bounds;
+    var inSafe = false;
+    var inBattle = false;
+
+    /* Battle logic */
+    // Check if player is in a safe zone
+    for (var zone in safeZones) {
+      bounds = safeZones[zone].circle.getBounds();
+      //Check if in safe zone, increase soldier count to max of 1500
+      if (bounds.contains(latLngCord)) {
+        // Set inSafe to true
+        //inSafe = true;
+        if (soldierCount < 1500) {
+          soldierCount += 100;
+          // Show user info about current location
+          $('#infoBox').html("You are currently in a safe zone and gaining soldiers");
+        } else {
+          // Show user info about current location
+          $('#infoBox').html("You are currently in a safe zone and have gained the maximum amount of soldiers");
+        }
       }
     }
 
-    // Get bounds
-    bounds = battleZoneCircle.getBounds();
-    //Check if in battle zone, decrease soldier count to a minimum of 0
-    if (bounds.contains(latLngCord)) {
-      //alert("in battlezone");
-      if (soldierCount > 0)
-        soldierCount -= 100;
-      // Show user info about current location
-      $('#infoBox').html("You are currently in a battle and losing soldiers");
+    // Chec if player is in a battle zone
+    for (var zone in battleZones) {
+      // Get bounds
+      bounds = battleZones[zone].circle.getBounds();
+      //Check if in battle zone, decrease soldier count to a minimum of 0
+      if (bounds.contains(latLngCord)) {
+        // Set in battle to true
+        //inBattle = true;
+        if (soldierCount > 0)
+          soldierCount -= 100;
+        // Show user info about current location
+        $('#infoBox').html("You are currently in a battle and losing soldiers");
+      }
+      // Keep soldier count up to date
+      $('#soldierCount').html("Soldier Count " + soldierCount);
     }
-    // Keep soldier count up to date
-    $('#soldierCount').html("Soldier Count " + soldierCount);
+
+    // Simulate battle numbers in background
+    frenchSoldiers = frenchSoldiers - (10 * Math.floor((Math.random() * 10) + 0));
+    englishSoldiers = englishSoldiers - (10 * Math.floor((Math.random() * 10) + 0));
+
+    // If soldiers run out and no one is around add soldiers for regen
+    if (englishSoldiers <= 0) {
+      englishSoldiers += 500;
+    }
+    if (frenchSoldiers <= 0) {
+      frenchSoldiers += 500;
+    }
+    console.log("French: " + frenchSoldiers + " English: " + englishSoldiers);
+
+
   }
 }, 3000);
