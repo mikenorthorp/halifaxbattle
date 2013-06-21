@@ -210,19 +210,16 @@ window.setInterval(function() {
   if (setUp) {
     // Get bounds
     var bounds;
-    var inSafe = false;
-    var inBattle = false;
 
     /* Battle logic */
     // Check if player is in a safe zone
     for (var zone in safeZones) {
+      // Get bounds
       bounds = safeZones[zone].circle.getBounds();
       //Check if in safe zone, increase soldier count to max of 1500
       if (bounds.contains(latLngCord)) {
-        // Set inSafe to true
-        //inSafe = true;
         if (soldierCount < 1500) {
-          soldierCount += 100;
+          soldierCount += 10;
           // Show user info about current location
           $('#infoBox').html("You are currently in a safe zone and gaining soldiers");
         } else {
@@ -232,24 +229,28 @@ window.setInterval(function() {
       }
     }
 
-    // Chec if player is in a battle zone
+    // Check if player is in a battle zone
     for (var zone in battleZones) {
       // Get bounds
       bounds = battleZones[zone].circle.getBounds();
       //Check if in battle zone, decrease soldier count to a minimum of 0
       if (bounds.contains(latLngCord)) {
-        // Set in battle to true
-        //inBattle = true;
-        if (soldierCount > 0)
-          soldierCount -= 100;
-        // Show user info about current location
-        $('#infoBox').html("You are currently in a battle and losing soldiers");
+        if (soldierCount > 0) {
+          soldierCount -= 10;
+          // Show user info about current location
+          $('#infoBox').html("You are currently in a battle and losing soldiers");
+        } else {
+          // User has lost all of his soldiers in the current battle
+          $('#infoBox').html("You have lost all of your soldiers, please go to your safe zone to gain more");
+        }
       }
-      // Keep soldier count up to date
-      $('#soldierCount').html("Soldier Count " + soldierCount);
     }
 
+    // Keep soldier count up to date
+    $('#soldierCount').html("Soldier Count " + soldierCount);
+
     // Simulate battle numbers in background
+
     frenchSoldiers = frenchSoldiers - (10 * Math.floor((Math.random() * 10) + 0));
     englishSoldiers = englishSoldiers - (10 * Math.floor((Math.random() * 10) + 0));
 
