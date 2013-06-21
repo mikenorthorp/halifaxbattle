@@ -29,21 +29,30 @@ var currentMarker = null;
 var update_count = 0;
 var watchId;
 
-// Create an object containing LatLng
+// Set up zone arrays for safe and battles
 var safeZones = {};
-safeZones['Resupply Zone'] = {
-  center: new google.maps.LatLng(44.640030, -63.694286),
-}
 var safeZoneCircle;
 
 var battleZones = {};
-battleZones['Battle Zone'] = {
-  center: new google.maps.LatLng(44.637405, -63.590846),
-}
 var battleZoneCircle;
 
-// Set up minimap to start tracking location
+// This function creates a new battle or safe zone at the cooridnates passed in
+function createZone(nameP, colorP, typeP, lat, lng, radiusP) {
+  var newZone = {
+    name: nameP,
+    color: colorP,
+    center: new google.maps.LatLng(lat, lng),
+    radius: radiusP
+  }
 
+  if(typeP == "battle"){
+    battleZones[newZone.name] = newZone;
+  } else {
+    safeZones[newZone.name] = newZone;
+  }
+}
+
+// Set up minimap to start tracking location
 function setUpMap() {
   // Page set up
   setUp = true;
@@ -53,38 +62,45 @@ function setUpMap() {
     disableDefaultUI: true,
     center: initialLocation,
     mapTypeId: google.maps.MapTypeId.ROADMAP,
-    draggable: false,
+    draggable: true,
     zoomControl: false,
-    scrollwheel: false,
+    scrollwheel: true,
     disableDoubleClickZoom: true
   };
   map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
+  // Create all of the zones
+  createZone("French Safe Zone", "#008000", "safe", 44.64838, -63.58339, 100);
+  createZone("English Safe Zone", "#008000", "safe", 44.64566, -63.57875, 100);
+  createZone("Battle Zone 1", "#FF0000", "battle", 44.64638, -63.58151, 100);
+  createZone("Battle Zone 2", "#FF0000", "battle", 44.64849, -63.57905, 100);
 
+  // Add safe zones into google maps
   for (var zone in safeZones) {
     var zoneOptions = {
-      strokeColor: '#008000',
+      strokeColor: safeZones[zone].color,
       strokeOpacity: 0.8,
       strokeWeight: 2,
-      fillColor: '#008000',
+      fillColor: safeZones[zone].color,
       fillOpacity: 0.35,
       map: map,
       center: safeZones[zone].center,
-      radius: 100
+      radius: safeZones[zone].radius
     };
     safeZoneCircle = new google.maps.Circle(zoneOptions);
   }
 
+  // Add battle zones into google maps
   for (var zone in battleZones) {
     var zoneOptions = {
-      strokeColor: '#FF0000',
+      strokeColor: battleZones[zone].color,
       strokeOpacity: 0.8,
       strokeWeight: 2,
-      fillColor: '#FF0000',
+      fillColor: battleZones[zone].color,
       fillOpacity: 0.35,
       map: map,
       center: battleZones[zone].center,
-      radius: 100
+      radius: battleZones[zone].radius
     };
     battleZoneCircle = new google.maps.Circle(zoneOptions);
   }
