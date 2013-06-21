@@ -10,6 +10,38 @@ body
   padding: 0px
 }
 
+h1 {
+	text-align: center;
+}
+
+#profile {
+	text-align: center;
+}
+
+#wrapper {
+	width:250px;
+	padding:20px;
+	background:#fff;
+	margin:45px auto;
+	box-shadow: 0 0 12px rgb(39, 34, 34);
+	text-align: left
+}
+
+input {
+	width: 50px;
+}
+
+#factionSubmit {
+	width: 100%;
+	margin-left: auto;
+	margin-left: auto;
+}
+
+#eng, #fre {
+	width: 20px;
+	text-align: left;
+}
+
 #map_canvas
 {
   height: 100%;
