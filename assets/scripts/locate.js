@@ -99,7 +99,7 @@ function getCurrentPosition() {
   if (navigator.geolocation) {
     geoLocationIsEnabled = true;
     navigator.geolocation.getCurrentPosition(function(position) {
-      document.getElementById("coordinates").innerHTML = "Position: " + position.coords.latitude.toFixed(6) + "," + position.coords.longitude.toFixed(6);
+      $('#coordinates').html("Position: " + position.coords.latitude.toFixed(6) + "," + position.coords.longitude.toFixed(6));
       initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
       moveMarker(initialLocation);
       //Set long and lat to variable
@@ -120,7 +120,7 @@ function getCurrentPosition() {
 
   if (geoLocationIsEnabled) {
     watchId = navigator.geolocation.watchPosition(function(position) {
-      document.getElementById("coordinates").innerHTML = "Position: " + position.coords.latitude.toFixed(6) + "," + position.coords.longitude.toFixed(6);
+      $('#coordinates').html("Position: " + position.coords.latitude.toFixed(6) + "," + position.coords.longitude.toFixed(6));
       //Set long and lat to variable
       longCord = position.coords.longitude.toFixed(6);
       latCord = position.coords.latitude.toFixed(6);
@@ -142,10 +142,10 @@ function getCurrentPosition() {
 
 function geolocationNotEnabled(errorFlag) {
   if (errorFlag == true) {
-    document.getElementById("errorMessage").innerHTML = "Geolocation service failed.";
+    $('#errorMessage').html("Geolocation service failed.");
     initialLocation = newyork;
   } else {
-    document.getElementById("errorMessage").innerHTML = "Your browser doesn't support geolocation. We've placed you in New York.";
+    $('#errorMessage').html("Your browser doesn't support geolocation. We've placed you in New York.");
     initialLocation = newyork;
   }
   map.setCenter(initialLocation);
@@ -172,9 +172,9 @@ function moveMarker(location) {
   update_count++;
 
   // Update other info everytime the marker is moved
-  document.getElementById("updateCount").innerHTML = "Update Count: " + update_count;
-  document.getElementById("soldierCount").innerHTML = "Soldier Count " + soldierCount;
-  document.getElementById("errorMessage").innerHTML = "";
+  $('#updateCount').html("Update Count: " + update_count);
+  $('#soldierCount').html("Soldier Count " + soldierCount);
+  $('#errorMessage').html("");
 }
 
 // Runs every 3 seconds to update soldier count if loaded and update count based on area
@@ -190,10 +190,10 @@ window.setInterval(function() {
       if (soldierCount < 1500) {
         soldierCount += 100;
         // Show user info about current location
-        document.getElementById("infoBox").innerHTML = "You are currently in a safe zone and gaining soldiers";
+        $('#infoBox').html("You are currently in a safe zone and gaining soldiers");
       } else {
         // Show user info about current location
-        document.getElementById("infoBox").innerHTML = "You are currently in a safe zone and have gained the maximum amount of soldiers";
+        $('#infoBox').html("You are currently in a safe zone and have gained the maximum amount of soldiers");
       }
     }
 
@@ -205,9 +205,9 @@ window.setInterval(function() {
       if (soldierCount > 0)
         soldierCount -= 100;
       // Show user info about current location
-      document.getElementById("infoBox").innerHTML = "You are currently in a battle and losing soldiers";
+      $('#infoBox').html("You are currently in a battle and losing soldiers");
     }
     // Keep soldier count up to date
-    document.getElementById("soldierCount").innerHTML = "Soldier Count " + soldierCount;
+    $('#soldierCount').html("Soldier Count " + soldierCount);
   }
 }, 3000);

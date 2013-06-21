@@ -1,13 +1,14 @@
 /* This function submits username and player team */
 $(document).ready(function() {
   $("#factionSubmit").click(function() {
+    $('#float').show();
     var name = document.getElementById('name').value;
 
     if (name != null) {
       var profile_name = name;
     }
 
-    document.getElementById('NAME').innerHTML = "Name: " + profile_name;
+    $('#playerName').html("Name: " + profile_name);
 
     var factions = document.getElementById('profile').elements['faction'];
     var factions_list = '';
@@ -18,8 +19,10 @@ $(document).ready(function() {
       }
     }
 
-    document.getElementById('FACTION').innerHTML = "Faction: " + factions_list;
-    document.getElementById('profile').innerHTML = "";
+    document.getElementById('factionName').innerHTML = "Faction: " + factions_list;
+    $("#profile").remove();
+    console.log("Removed profile?");
+    $('#title').remove();
 
     // Call google map setup
     setUpMap();
