@@ -14,7 +14,8 @@
         <script type="text/javascript" src="/assets/scripts/submit.js"></script>
     </head>
     <body>
-        <h1>
+
+        <h1 id="title">
             Citadel Hill Battle!
         </h1>
         <form id="profile">
@@ -25,19 +26,23 @@
                 <input type="button" name="factionSubmit" id="factionSubmit" value="Play!">
             </div>
         </form>
-        <div id="InfoArea">
-            <h3>
-                Battle Information
-            </h3>
-            <p id="NAME"></p>
-            <p id="FACTION"></p>
 
-            <span id="coordinates"></span><br>
-            <span id="updateCount"></span><br>
-            <span id="soldierCount"></span><br>
-            <span id="infoBox"></span><br>
-            <span id="errorMessage"></span>
-        </div>
         <div id="map_canvas"></div>
+
+        <div id="float" hidden>
+            <div id="InfoArea">
+                <h3>
+                    Battle Information
+                </h3>
+                <p id="playerName"></p>
+                <p id="factionName"></p>
+
+                <span id="coordinates"></span><br>
+                <span id="updateCount"></span><br>
+                <span id="soldierCount"></span><br>
+                <span id="infoBox"></span><br>
+                <span id="errorMessage"></span>
+            </div>
+        </div>
     </body>
 </html>
