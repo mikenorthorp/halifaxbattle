@@ -31,7 +31,7 @@ if (Meteor.isClient) {
         $('#playerName').html("Name: " + name);
 
         $("#profile").remove();
-        console.log("Removed profile?");
+        $("#instructions").remove();
         $('#title').remove();
 
         // Call google map setup
@@ -315,11 +315,12 @@ if (Meteor.isClient) {
     }, 3000);
   }
 
-  Template.leaderboard.players = function() {
+  Template.test.players = function() {
     return Players.find({}, {
       sort: {
-        score: -1,
-        name: 1
+        zone: -1,
+        english: 1,
+        french: 1
       }
     });
   };

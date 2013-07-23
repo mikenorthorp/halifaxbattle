@@ -8,6 +8,7 @@
 <body>
   <div id="outer">
     {{> submit}}
+    {{> test}}
   </div>
   <div id="map_canvas"></div>
   <div id="float">
@@ -29,6 +30,18 @@
  <h1 id="title">
             Citadel Hill Battle!
         </h1>
+        <div id="instructions">
+          <p> Welcome to Citadel Hill Battle! NOTE: In order to play this game, your handheld device must have GPS enabeled. </p>
+              <p>Getting Started</p>
+              <li>Enter name and choose French or English</li>
+              <li>Hit Play</li>
+              </br>
+              <p>Objective</p>
+              <li>Head to red zones to battle</li>
+              <li>Head to green zones to get more troops</li>
+              <li>Being in red zones hurts other side, but you lose own troops</li>
+              <li>Try to control all the red zones!</li>
+        </div>
         <form id="profile">
             <div id="wrapper">
                 <label for="name">Name:</label> <input type="text" class="span3" name="name" id="name" value=""><br><br>
@@ -39,8 +52,13 @@
         </form>
 </template>
 
-<template name="maps">
-
+<template name="test">
+  <div class="test">
+    <p> Test List</p>
+    {{#each players}}
+      {{> player}}
+    {{/each}}
+  </div>
 </template>
 
 
@@ -65,8 +83,8 @@
 
 <template name="player">
   <div class="player {{selected}}">
-    <span class="name">{{name}}</span>
-    <span class="score">{{score}}</span>
+    <span class="name">{{zone}}</span>
+    <span class="score">{{english}}</span>
   </div>
 </template>
 
