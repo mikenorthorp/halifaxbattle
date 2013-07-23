@@ -63,9 +63,9 @@ if (Meteor.isClient) {
     // Set up map marker image of soldier
     var mapMarker =
       new google.maps.MarkerImage('assets/images/army.png',
-      new google.maps.Size(64, 64),
-      new google.maps.Point(0, 0),
-      new google.maps.Point(12, 62));
+        new google.maps.Size(64, 64),
+        new google.maps.Point(0, 0),
+        new google.maps.Point(12, 62));
 
     // Set current marker to null
     var currentMarker = null;
@@ -279,6 +279,11 @@ if (Meteor.isClient) {
           bounds = battleZones[zone].circle.getBounds();
           //Check if in battle zone, decrease soldier count to a minimum of 0
           if (bounds.contains(latLngCord)) {
+
+            // Update and display soldier count
+            $('#englishSide').html("French Side: " + frenchSoldiers);
+            $('#frenchSide').html("English Side : " + englishSoldiers);
+
             if (soldierCount > 0) {
               soldierCount -= 10;
               // Show user info about current location
@@ -305,8 +310,6 @@ if (Meteor.isClient) {
         if (frenchSoldiers <= 0) {
           frenchSoldiers += 500;
         }
-        console.log("French: " + frenchSoldiers + " English: " + englishSoldiers);
-
 
       }
     }, 3000);
@@ -351,17 +354,14 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
   Meteor.startup(function() {
     if (Players.find().count() === 0) {
-      var names = ["Ada Lovelace",
-          "Grace Hopper",
-          "Marie Curie",
-          "Carl Friedrich Gauss",
-          "Nikola Tesla",
-          "Claude Shannon"
+      var zonesDB = ["Battle Zone 1",
+        "Battle Zone 2"
       ];
-      for (var i = 0; i < names.length; i++)
+      for (var i = 0; i < zonesDB.length; i++)
         Players.insert({
-          name: names[i],
-          score: Math.floor(Random.fraction() * 10) * 5
+          zone: zonesDB[i],
+          english: 5000,
+          french: 5000
         });
     }
   });
