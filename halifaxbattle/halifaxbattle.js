@@ -7,6 +7,9 @@ if (Meteor.isClient) {
 
   // Call map code
   Template.submit.rendered = function() {
+
+    var factions_list = '';
+
     /* This function submits username and player team */
     $(document).ready(function() {
       $("#factionSubmit").click(function() {
@@ -18,7 +21,6 @@ if (Meteor.isClient) {
         }
 
         var factions = document.getElementById('profile').elements['faction'];
-        var factions_list = '';
 
         for (i = 0; i < factions.length; i++) {
           if (factions[i].checked) {
@@ -27,6 +29,7 @@ if (Meteor.isClient) {
         }
 
         document.getElementById('factionName').innerHTML = "Faction: " + factions_list;
+        console.log(factions_list);
         $('#infoHeader').html("Battle Information");
         $('#playerName').html("Name: " + name);
 
@@ -50,15 +53,18 @@ if (Meteor.isClient) {
     var latCord = 0;
     var latLngCord = null;
 
-    // Starting soldier count between 4500 and 5500
-    var englishSoldiers = Math.floor((Math.random() * 1000) + 4500);
-    var frenchSoldiers = Math.floor((Math.random() * 1000) + 4500);
+
+    // Start soldier count
+    var englishSoldiers = 6000;
+    var frenchSoldiers = 6000;
 
     // Page setup
     var setUp = false;
 
     //Set initial soldier count
+
     var soldierCount = 1000;
+    var inBattle = false;
 
     // Set up map marker image of soldier
     var mapMarker =
@@ -102,7 +108,6 @@ if (Meteor.isClient) {
     // Set up minimap to start tracking location
 
     function setUpMap() {
-      console.log("CREATING MAP");
       // Page set up
       setUp = true;
       // Set options for google map
@@ -111,9 +116,9 @@ if (Meteor.isClient) {
         disableDefaultUI: true,
         center: initialLocation,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
-        draggable: true,
+        draggable: false,
         zoomControl: false,
-        scrollwheel: true,
+        scrollwheel: false,
         disableDoubleClickZoom: true
       };
       map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
@@ -263,7 +268,7 @@ if (Meteor.isClient) {
           //Check if in safe zone, increase soldier count to max of 1500
           if (bounds.contains(latLngCord)) {
             if (soldierCount < 1500) {
-              soldierCount += 10;
+              soldierCount += 50;
               // Show user info about current location
               $('#infoBox').html("You are currently in a safe zone and gaining soldiers");
             } else {
@@ -273,16 +278,47 @@ if (Meteor.isClient) {
           }
         }
 
+        // Get database zone and soldier count for each side
+        var player = Players.findOne();
+        frenchSoldiers = player.french;
+        englishSoldiers = player.english;
+
         // Check if player is in a battle zone
         for (var zone in battleZones) {
           // Get bounds
           bounds = battleZones[zone].circle.getBounds();
           //Check if in battle zone, decrease soldier count to a minimum of 0
           if (bounds.contains(latLngCord)) {
+            // Add soldiers to pool if entering zone only once
 
+            // English side
+            if (inBattle == false) {
+              // Update the zone count on entry depending on side
+              if (factions_list == "English Player") {
+                console.log("Added to english side");
+                Players.update(player._id, {
+                  $inc: {
+                    english: soldierCount
+                  }
+                });
+              }
+
+              // French side
+              if (factions_list == "French Player") {
+                console.log("Added to french side");
+                Players.update(player._id, {
+                  $inc: {
+                    french: soldierCount
+                  }
+                });
+              }
+            }
+
+            // Set in battle to true
+            inBattle = true;
             // Update and display soldier count
-            $('#englishSide').html("French Side: " + frenchSoldiers);
-            $('#frenchSide').html("English Side : " + englishSoldiers);
+            $('#englishSide').html("French Side: " + player.french);
+            $('#frenchSide').html("English Side : " + player.english);
 
             if (soldierCount > 0) {
               soldierCount -= 10;
@@ -292,6 +328,35 @@ if (Meteor.isClient) {
               // User has lost all of his soldiers in the current battle
               $('#infoBox').html("You have lost all of your soldiers, please go to your safe zone to gain more");
             }
+
+          } else {
+            // Set in battle to false when they leave
+            if (inBattle == true) {
+              // Remove their current soldier count from battle if possible.
+              // Update the zone count on entry depending on side
+              if (factions_list == "English Player") {
+                console.log("Removed from english side");
+                Players.update(player._id, {
+                  $set: {
+                    english: -soldierCount
+                  }
+                });
+              }
+
+              // French side
+              if (factions_list == "French Player") {
+                console.log("Removed from french side");
+                Players.update(player._id, {
+                  $set: {
+                    french: -soldierCount
+                  }
+                });
+              }
+
+              // Set in battle to false
+              inBattle = false;
+            }
+
           }
         }
 
@@ -299,16 +364,40 @@ if (Meteor.isClient) {
         $('#soldierCount').html("Personal Soldier Count " + soldierCount);
 
         // Simulate battle numbers in background
-
+        // Update french soldier count
+        frenchSoldiers = player.french;
         frenchSoldiers = frenchSoldiers - (10 * Math.floor((Math.random() * 10) + 0));
+        Players.update(player._id, {
+          $set: {
+            french: frenchSoldiers
+          }
+        });
+
+        // Update english soldier count
+        englishSoldiers = player.english;
         englishSoldiers = englishSoldiers - (10 * Math.floor((Math.random() * 10) + 0));
+        Players.update(player._id, {
+          $set: {
+            english: englishSoldiers
+          }
+        });
 
         // If soldiers run out and no one is around add soldiers for regen
         if (englishSoldiers <= 0) {
           englishSoldiers += 500;
+          Players.update(player._id, {
+            $inc: {
+              english: 500
+            }
+          });
         }
         if (frenchSoldiers <= 0) {
           frenchSoldiers += 500;
+          Players.update(player._id, {
+            $inc: {
+              french: 500
+            }
+          });
         }
 
       }
@@ -326,8 +415,8 @@ if (Meteor.isClient) {
   };
 
   Template.leaderboard.selected_name = function() {
-    var player = Players.findOne(Session.get("selected_player"));
-    return player && player.name;
+    var player = Players.findOne();
+    return player && player.zone && player.english && player.french;
   };
 
   Template.player.selected = function() {
@@ -355,15 +444,11 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
   Meteor.startup(function() {
     if (Players.find().count() === 0) {
-      var zonesDB = ["Battle Zone 1",
-        "Battle Zone 2"
-      ];
-      for (var i = 0; i < zonesDB.length; i++)
-        Players.insert({
-          zone: zonesDB[i],
-          english: 5000,
-          french: 5000
-        });
+      Players.insert({
+        zone: "BattleZone",
+        english: 10000,
+        french: 10000
+      });
     }
   });
 }
