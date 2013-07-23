@@ -13,11 +13,9 @@ if (Meteor.isClient) {
         $('#float').show();
         var name = document.getElementById('name').value;
 
-        if (name != null) {
-          var profile_name = name;
+        if (name == '') {
+          name = "Player";
         }
-
-        $('#playerName').html("Name: " + profile_name);
 
         var factions = document.getElementById('profile').elements['faction'];
         var factions_list = '';
@@ -29,7 +27,8 @@ if (Meteor.isClient) {
         }
 
         document.getElementById('factionName').innerHTML = "Faction: " + factions_list;
-        $('#playerName').html("Battle Information");
+        $('#infoHeader').html("Battle Information");
+        $('#playerName').html("Name: " + name);
 
         $("#profile").remove();
         console.log("Removed profile?");
@@ -170,7 +169,7 @@ if (Meteor.isClient) {
       if (navigator.geolocation) {
         geoLocationIsEnabled = true;
         navigator.geolocation.getCurrentPosition(function(position) {
-          $('#coordinates').html("Position: " + position.coords.latitude.toFixed(6) + "," + position.coords.longitude.toFixed(6));
+          console.log("Position: " + position.coords.latitude.toFixed(6) + "," + position.coords.longitude.toFixed(6));
           initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
           moveMarker(initialLocation);
           //Set long and lat to variable
@@ -191,7 +190,7 @@ if (Meteor.isClient) {
 
       if (geoLocationIsEnabled) {
         watchId = navigator.geolocation.watchPosition(function(position) {
-          $('#coordinates').html("Position: " + position.coords.latitude.toFixed(6) + "," + position.coords.longitude.toFixed(6));
+          console.log("Position: " + position.coords.latitude.toFixed(6) + "," + position.coords.longitude.toFixed(6));
           //Set long and lat to variable
           longCord = position.coords.longitude.toFixed(6);
           latCord = position.coords.latitude.toFixed(6);
@@ -243,7 +242,9 @@ if (Meteor.isClient) {
       update_count++;
 
       // Update other info everytime the marker is moved
-      $('#updateCount').html("Update Count: " + update_count);
+      // Log updates to console
+      console.log("Update Count: " + update_count);
+
       $('#soldierCount').html("Soldier Count " + soldierCount);
       $('#errorMessage').html("");
     }
@@ -290,7 +291,7 @@ if (Meteor.isClient) {
         }
 
         // Keep soldier count up to date
-        $('#soldierCount').html("Soldier Count " + soldierCount);
+        $('#soldierCount').html("Personal Soldier Count " + soldierCount);
 
         // Simulate battle numbers in background
 
