@@ -251,7 +251,7 @@ if (Meteor.isClient) {
       // Log updates to console
       console.log("Update Count: " + update_count);
 
-      $('#soldierCount').html("Soldier Count " + soldierCount);
+      $('#soldierCount').html("Personal Soldier Count " + soldierCount);
       $('#errorMessage').html("");
     }
 
@@ -315,6 +315,16 @@ if (Meteor.isClient) {
         var player = Players.findOne();
         frenchSoldiers = player.french;
         englishSoldiers = player.english;
+
+        if(frenchSoldiers == null) {
+          frenchSoldiers = 0;
+          return 0;
+        }
+
+        if(englishSoldiers == null) {
+          englishSoldiers = 0;
+          return 0;
+        }
 
 
         // Check if player is in a battle zone
