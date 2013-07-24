@@ -14,6 +14,7 @@ if (Meteor.isClient) {
     $(document).ready(function() {
       $("#factionSubmit").click(function() {
         $('#float').show();
+        $('#rallyTroops').show();
         var name = document.getElementById('name').value;
 
         if (name == '') {
@@ -60,11 +61,12 @@ if (Meteor.isClient) {
 
     // Page setup
     var setUp = false;
+    var inBattleZone = false;
 
     //Set initial soldier count
 
     var soldierCount = 1000;
-    var inBattle = false;
+    var inBattle = 0;
 
     // Set up map marker image of soldier
     var mapMarker =
@@ -254,6 +256,31 @@ if (Meteor.isClient) {
       $('#errorMessage').html("");
     }
 
+    // Rally your troops, add and attack the enemy
+    $("#rallyTroops").click(function() {
+      var player = Players.findOne();
+      // Update the zone count on entry depending on side
+      if (factions_list == "English Player") {
+        console.log("Rallied english side");
+        Players.update(player._id, {
+          $inc: {
+            english: 200
+          }
+        });
+      }
+
+      // French side
+      if (factions_list == "French Player") {
+        console.log("Rallied french side");
+        Players.update(player._id, {
+          $inc: {
+            french: 200
+          }
+        });
+      }
+
+    });
+
     // Runs every 3 seconds to update soldier count if loaded and update count based on area
     window.setInterval(function() {
       if (setUp) {
@@ -283,82 +310,92 @@ if (Meteor.isClient) {
         frenchSoldiers = player.french;
         englishSoldiers = player.english;
 
+
         // Check if player is in a battle zone
         for (var zone in battleZones) {
           // Get bounds
           bounds = battleZones[zone].circle.getBounds();
           //Check if in battle zone, decrease soldier count to a minimum of 0
           if (bounds.contains(latLngCord)) {
-            // Add soldiers to pool if entering zone only once
+            inBattleZone = true;
+            break;
+          }
+        }
 
-            // English side
-            if (inBattle == false) {
-              // Update the zone count on entry depending on side
-              if (factions_list == "English Player") {
-                console.log("Added to english side");
-                Players.update(player._id, {
-                  $inc: {
-                    english: soldierCount
-                  }
-                });
-              }
+        // If they are in a battle zone
+        if (inBattleZone) {
+          // Add soldiers to pool if entering zone only once
 
-              // French side
-              if (factions_list == "French Player") {
-                console.log("Added to french side");
-                Players.update(player._id, {
-                  $inc: {
-                    french: soldierCount
-                  }
-                });
-              }
+          // English side
+          if (inBattle == 0) {
+            // Update the zone count on entry depending on side
+            if (factions_list == "English Player") {
+              console.log("Added to english side");
+              Players.update(player._id, {
+                $inc: {
+                  english: soldierCount
+                }
+              });
+            }
+
+            // French side
+            if (factions_list == "French Player") {
+              console.log("Added to french side");
+              Players.update(player._id, {
+                $inc: {
+                  french: soldierCount
+                }
+              });
             }
 
             // Set in battle to true
-            inBattle = true;
-            // Update and display soldier count
-            $('#englishSide').html("French Side: " + player.french);
-            $('#frenchSide').html("English Side : " + player.english);
+            inBattle = 1;
+          }
 
-            if (soldierCount > 0) {
-              soldierCount -= 10;
-              // Show user info about current location
-              $('#infoBox').html("You are currently in a battle and losing soldiers");
-            } else {
-              // User has lost all of his soldiers in the current battle
-              $('#infoBox').html("You have lost all of your soldiers, please go to your safe zone to gain more");
-            }
+          // Update and display soldier count
+          player = Players.findOne();
+          $('#englishSide').html("French Side: " + player.french);
+          $('#frenchSide').html("English Side : " + player.english);
 
+          if (soldierCount >= 10) {
+            soldierCount -= 10;
+            // Show user info about current location
+            $('#infoBox').html("You are currently in a battle and losing soldiers");
           } else {
-            // Set in battle to false when they leave
-            if (inBattle == true) {
-              // Remove their current soldier count from battle if possible.
-              // Update the zone count on entry depending on side
-              if (factions_list == "English Player") {
-                console.log("Removed from english side");
-                Players.update(player._id, {
-                  $set: {
-                    english: -soldierCount
-                  }
-                });
-              }
+            // User has lost all of his soldiers in the current battle
+            soldierCount = 0;
+            $('#infoBox').html("You have lost all of your soldiers, please go to your safe zone to gain more");
+          }
 
-              // French side
-              if (factions_list == "French Player") {
-                console.log("Removed from french side");
-                Players.update(player._id, {
-                  $set: {
-                    french: -soldierCount
-                  }
-                });
-              }
-
-              // Set in battle to false
-              inBattle = false;
+        } else {
+          // Set in battle to false when they leave
+          if (inBattle == 1) {
+            // Remove their current soldier count from battle if possible.
+            // Update the zone count on entry depending on side
+            if (factions_list == "English Player") {
+              console.log("Removed from english side");
+              Players.update(player._id, {
+                $set: {
+                  english: -soldierCount
+                }
+              });
             }
 
+            // French side
+            if (factions_list == "French Player") {
+              console.log("Removed from french side");
+              Players.update(player._id, {
+                $set: {
+                  french: -soldierCount
+                }
+              });
+            }
+
+            // Set in battle to false
+            inBattle = 0;
           }
         }
+
 
         // Keep soldier count up to date
         $('#soldierCount').html("Personal Soldier Count " + soldierCount);
@@ -384,20 +421,25 @@ if (Meteor.isClient) {
 
         // If soldiers run out and no one is around add soldiers for regen
         if (englishSoldiers <= 0) {
-          englishSoldiers += 500;
+          englishSoldiers = 5000;
+          alert("The French Have Won The Zone!");
           Players.update(player._id, {
-            $inc: {
-              english: 500
+            $set: {
+              english: englishSoldiers
             }
           });
+          alert("The English have called in reinforcments!");
         }
+
         if (frenchSoldiers <= 0) {
-          frenchSoldiers += 500;
+          frenchSoldiers = 5000;
+          alert("The English Have Won The Zone!");
           Players.update(player._id, {
-            $inc: {
-              french: 500
+            $set: {
+              french: frenchSoldiers
             }
           });
+          alert("The French have called in reinforcments!");
         }
 
       }
