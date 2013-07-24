@@ -279,6 +279,13 @@ if (Meteor.isClient) {
         });
       }
 
+      // Hide button for 10 seconds
+      $('#rallyTroops').hide();
+      setTimeout(
+        function() {
+          $('#rallyTroops').show();
+        }, 10000);
+
     });
 
     // Runs every 3 seconds to update soldier count if loaded and update count based on area
