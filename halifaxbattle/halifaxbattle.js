@@ -61,6 +61,7 @@ if (Meteor.isClient) {
     // Page setup
     var setUp = false;
     var inBattleZone = false;
+    var inSafeZone = false;
 
     //Set initial soldier count
 
@@ -132,6 +133,7 @@ if (Meteor.isClient) {
 
       // Test zone for battle
       createZone("Battle Zone test", "#FF0000", "battle", 44.637581, -63.587166, 100);
+      createZone("Safe Zone Test", "#008000", "safe", 44.648901,-63.575335, 100);
 
       // Add safe zones into google maps
       for (var zone in safeZones) {
@@ -293,35 +295,44 @@ if (Meteor.isClient) {
         // Get bounds
         var bounds;
 
-        /* Battle logic */
+        /* Safe Zone Logic */
+
         // Check if player is in a safe zone
         for (var zone in safeZones) {
           // Get bounds
           bounds = safeZones[zone].circle.getBounds();
           //Check if in safe zone, increase soldier count to max of 1500
           if (bounds.contains(latLngCord)) {
-            if (soldierCount < 1500) {
-              soldierCount += 50;
-              // Show user info about current location
-              $('#infoBox').html("You are currently in a safe zone and gaining soldiers");
-            } else {
-              // Show user info about current location
-              $('#infoBox').html("You are currently in a safe zone and have gained the maximum amount of soldiers");
-            }
+            inSafeZone = true;
+            break;
           }
         }
+
+        if (inSafeZone) {
+          if (soldierCount < 1500) {
+            soldierCount += 50;
+            // Show user info about current location
+            $('#infoBox').html("You are currently in a safe zone and gaining soldiers");
+          } else {
+            // Show user info about current location
+            $('#infoBox').html("You are currently in a safe zone and have gained the maximum amount of soldiers");
+          }
+        } else {
+          inSafeZone = false;
+        }
+
 
         // Get database zone and soldier count for each side
         var player = Players.findOne();
         frenchSoldiers = player.french;
         englishSoldiers = player.english;
 
-        if(frenchSoldiers == null) {
+        if (frenchSoldiers == null) {
           frenchSoldiers = 0;
           return 0;
         }
 
-        if(englishSoldiers == null) {
+        if (englishSoldiers == null) {
           englishSoldiers = 0;
           return 0;
         }
@@ -331,7 +342,7 @@ if (Meteor.isClient) {
         for (var zone in battleZones) {
           // Get bounds
           bounds = battleZones[zone].circle.getBounds();
-          //Check if in battle zone, decrease soldier count to a minimum of 0
+          //Check if in battle zone
           if (bounds.contains(latLngCord)) {
             inBattleZone = true;
             break;
@@ -384,9 +395,17 @@ if (Meteor.isClient) {
           }
 
         } else {
+          console.log("Not in zone but wasn't leaving battle");
+          inBattleZone = false;
+
+          // Set battle zone fields to not show again when not in zone
+          // Show user info about current location
+          $('#englishSide').html("");
+          $('#frenchSide').html("");
+
           // Set in battle to false when they leave
           if (inBattle == 1) {
-            console.log("Leaving zone");
+            console.log("Leaving battle zone");
             $('#rallyTroops').hide();
             // Remove their current soldier count from battle if possible.
             // Update the zone count on entry depending on side
@@ -412,6 +431,12 @@ if (Meteor.isClient) {
             // Set in battle to false
             inBattle = 0;
           }
+        }
+
+        // Check if they are not in any zone and clear zone alert fields
+        if (!inBattleZone && !inSafeZone) {
+          $('#zoneAlert').html("You are not in a battle! Head to a green or red zone to get more soldiers or battle!");
+          $('#infoBox').html("");
         }
 
 
@@ -440,7 +465,9 @@ if (Meteor.isClient) {
         // If soldiers run out and no one is around add soldiers for regen
         if (englishSoldiers <= 0) {
           englishSoldiers = 5000;
-          $('#zoneAlert').html("The French Have Won The Zone! Refinforcments called!");
+          if (inBattleZone) {
+            $('#zoneAlert').html("The French Have Won The Zone! Refinforcments called!");
+          }
           Players.update(player._id, {
             $set: {
               english: englishSoldiers
@@ -450,7 +477,9 @@ if (Meteor.isClient) {
 
         if (frenchSoldiers <= 0) {
           frenchSoldiers = 5000;
-          $('#zoneAlert').html("The English Have Won The Zone! Refinforcments called!");
+          if (inBattleZone) {
+            $('#zoneAlert').html("The English Have Won The Zone! Refinforcments called!");
+          }
           Players.update(player._id, {
             $set: {
               french: frenchSoldiers
