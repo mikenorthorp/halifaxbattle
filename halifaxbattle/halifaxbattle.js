@@ -440,24 +440,22 @@ if (Meteor.isClient) {
         // If soldiers run out and no one is around add soldiers for regen
         if (englishSoldiers <= 0) {
           englishSoldiers = 5000;
-          alert("The French Have Won The Zone!");
+          $('#zoneAlert').html("The French Have Won The Zone! Refinforcments called!");
           Players.update(player._id, {
             $set: {
               english: englishSoldiers
             }
           });
-          alert("The English have called in reinforcments!");
         }
 
         if (frenchSoldiers <= 0) {
           frenchSoldiers = 5000;
-          alert("The English Have Won The Zone!");
+          $('#zoneAlert').html("The English Have Won The Zone! Refinforcments called!");
           Players.update(player._id, {
             $set: {
               french: frenchSoldiers
             }
           });
-          alert("The French have called in reinforcments!");
         }
 
       }
