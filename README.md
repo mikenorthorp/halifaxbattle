@@ -1,6 +1,10 @@
 README
 ======
 
+**README AND CODEBASE IS BEST VIEWED ON [Github](https://github.com/mikenorthorp/halifaxbattle/) (But also mirrored on [SVN](https://svn.cs.dal.ca/csci3130g04/))**
+
+Site is currently deployed at [http://halifaxsuper2.meteor.com/](http://halifaxsuper2.meteor.com/) but may change
+
 This is the project repository for a project in Software Engineering at Dalhousie
 University.
 
