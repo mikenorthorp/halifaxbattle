@@ -14,7 +14,6 @@ if (Meteor.isClient) {
     $(document).ready(function() {
       $("#factionSubmit").click(function() {
         $('#float').show();
-        $('#rallyTroops').show();
         var name = document.getElementById('name').value;
 
         if (name == '') {
@@ -332,9 +331,9 @@ if (Meteor.isClient) {
         // If they are in a battle zone
         if (inBattleZone) {
           // Add soldiers to pool if entering zone only once
-
           // English side
           if (inBattle == 0) {
+            $('#rallyTroops').show();
             // Update the zone count on entry depending on side
             if (factions_list == "English Player") {
               console.log("Added to english side");
@@ -377,6 +376,8 @@ if (Meteor.isClient) {
         } else {
           // Set in battle to false when they leave
           if (inBattle == 1) {
+            console.log("Leaving zone");
+            $('#rallyTroops').hide();
             // Remove their current soldier count from battle if possible.
             // Update the zone count on entry depending on side
             if (factions_list == "English Player") {
